@@ -17,15 +17,20 @@ She adds the data she already has. The system turns it into an explainable 0-100
 
 ## Features
 **Borrower side**
+- Demo login page to sign in and open your own dashboard quickly.
 - Add data by CSV upload (verified) or manual sales entry (self-reported); record SHG, EMI and chit entries.
 - Score out of 100 with six factors: revenue consistency, growth trend, activity regularity, customer diversity, repayment and saving behaviour, cash-flow buffer.
+- Real score dashboard, powered by the backend, so the score shown is the actual calculated score.
 - Plain-language note for each factor, and a verified / self-reported label on each.
 - Coaching tips, and charts: monthly sales trend, activity view, inflow vs outflow.
+- Help dashboard that explains how to use the app and how to read the score and its factors.
 - Consent form: who it is for, what they can see, and for how long (24 hours, 7 days, 30 days).
+- Three additional datasets for broader and more realistic scoring and demo data.
 - Shared links list with status (active, expired, revoked), open count and instant revoke.
 - English, Hindi and Marathi interface.
 
 **Lender side (public link)**
+- Frontend and backend in sync: the lender sees the same score as the borrower's dashboard, with no mismatch.
 - Authenticity check: "unchanged since generation".
 - Score, factor breakdown, confidence split and monthly trend, limited to the sections the borrower allowed.
 - No raw transactions or customer names are ever returned.
