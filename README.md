@@ -5,7 +5,7 @@
 Built for **She Solves 3.0** (Round 2: Prototype Development).
 
 **Live frontend:** https://credit-passport-she.lovable.app
-**Demo video:** https://drive.google.com/file/d/1slynhqA-ly7gi_-nDF2wcshsFLbErvzu/view?usp=sharing
+**Demo video:** https://drive.google.com/file/d/15ofT2RlB5vIeclhVVhZ9j9hl8IxhFCSE/view?usp=sharing
 
 ## Problem Statement
 Millions of women in India run steady micro-businesses such as tiffin services, tailoring units and home bakeries. Their records live in notebooks, UPI transactions and memory. When they apply for a loan, lenders ask for ITRs, GST filings, audited statements and collateral. She has none of these, so she is rejected and is not told what to fix.
