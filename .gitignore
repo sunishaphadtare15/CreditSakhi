@@ -35,3 +35,5 @@ __pycache__/
 *.pyc
 *.db
 .env
+   desktop.ini
+   
