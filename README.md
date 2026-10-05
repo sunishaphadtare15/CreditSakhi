@@ -96,12 +96,13 @@ Creating a share saves a frozen snapshot of the score and its SHA-256 hash. Only
 ## Project Structure
 ```
 CreditSakhi/
-  backend/            FastAPI app (main.py), requirements.txt, README
+  backend/        FastAPI app (main.py), requirements.txt, datasets, README
   src/
-    routes/           pages, including the lender page p.$token.tsx
-    lib/api.ts        calls to the backend
-    components/       UI components (sharing flow, dashboard)
+    routes/       pages, including Login, help, and the lender page p.$token.tsx
+    lib/api.ts    calls to the backend (keeps lender and borrower scores in sync)
+    components/   UI components (sharing flow, dashboard)
   public/
+  screenshots/    images used in this README
   package.json
 ```
 
@@ -118,7 +119,6 @@ CreditSakhi/
 - The score is a supporting document, not a lending decision.
 - Self-reported data can be manipulated, which is why every factor carries a verified / self-reported label.
 - Scoring weights are uncalibrated and need testing against real repayment data in a pilot.
-- Prototype scope: a single demo user (no login), SQLite file storage, no rate limiting.
 - A shared link shows a frozen snapshot from the moment it was created; later changes do not appear on old links.
 
 ## Future Scope
