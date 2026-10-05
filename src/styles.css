@@ -16,12 +16,12 @@
 }
 :root {
   --radius: .5rem;
-  --background: oklch(.985 .003 160); --foreground: oklch(.265 .035 253); --card: oklch(1 0 0); --card-foreground: var(--foreground);
+  --background: oklch(.972 .012 90); --foreground: oklch(.27 .03 200); --card: oklch(.995 .004 90); --card-foreground: var(--foreground);
   --primary: oklch(.405 .079 166); --primary-hover: oklch(.35 .07 166); --primary-foreground: oklch(.99 0 0); --primary-foreground-muted: oklch(.9 .025 165); --primary-foreground-soft: oklch(1 0 0 / 14%); --primary-soft: oklch(.95 .035 166); --primary-soft-hover: oklch(.92 .05 166); --primary-border: oklch(.48 .075 166);
-  --secondary: oklch(.955 .006 160); --secondary-foreground: var(--foreground); --muted: oklch(.96 .006 160); --muted-foreground: oklch(.50 .022 250); --accent: var(--primary-soft); --accent-foreground: var(--primary);
-  --destructive: oklch(.56 .21 25); --destructive-foreground: oklch(.99 0 0); --destructive-soft: oklch(.96 .025 22); --border: oklch(.91 .008 250); --input: oklch(.84 .012 250); --ring: oklch(.65 .115 166);
+  --secondary: oklch(.94 .02 130); --secondary-foreground: var(--foreground); --muted: oklch(.945 .014 100); --muted-foreground: oklch(.5 .025 200); --accent: var(--primary-soft); --accent-foreground: var(--primary);
+  --destructive: oklch(.56 .21 25); --destructive-foreground: oklch(.99 0 0); --destructive-soft: oklch(.96 .025 22); --border: oklch(.89 .016 100); --input: oklch(.84 .012 250); --ring: oklch(.65 .115 166);
   --verified: oklch(.61 .118 174); --verified-medium: oklch(.72 .095 174); --verified-light: oklch(.83 .06 174); --verified-soft: oklch(.96 .035 174); --verified-border: oklch(.83 .06 174); --reported: oklch(.75 .115 83); --reported-soft: oklch(.965 .045 84);
-  --terracotta: oklch(.66 .135 34); --terracotta-soft: oklch(.95 .035 35); --gold: oklch(.76 .135 67); --gold-border: oklch(.86 .09 79); --coach: oklch(.97 .035 82); --surface-subtle: oklch(.965 .005 160); --overlay: oklch(.16 .02 250 / 55%); --whatsapp: oklch(.57 .16 145); --whatsapp-hover: oklch(.51 .15 145);
+  --terracotta: oklch(.66 .135 34); --terracotta-soft: oklch(.95 .035 35); --gold: oklch(.74 .11 78); --gold-border: oklch(.86 .09 79); --coach: oklch(.97 .035 82); --surface-subtle: oklch(.955 .016 92); --overlay: oklch(.16 .02 250 / 55%); --whatsapp: oklch(.57 .16 145); --whatsapp-hover: oklch(.51 .15 145);
 }
 @layer base { * { border-color: var(--border); } html { font-family: var(--font-sans); } body { margin:0; background:var(--background); color:var(--foreground); } button,select,input { letter-spacing:0; } button { cursor:pointer; } }
 @utility shadow-card { box-shadow: 0 3px 14px oklch(.2 .02 250 / 7%); }

@@ -27,13 +27,20 @@ with db() as _c:
     CREATE TABLE IF NOT EXISTS tx(id INTEGER PRIMARY KEY, date TEXT, descr TEXT, amt REAL, party TEXT, src TEXT, kind TEXT);
     CREATE TABLE IF NOT EXISTS shares(id TEXT PRIMARY KEY, token_hash TEXT UNIQUE, lender TEXT, sections TEXT,
       duration TEXT, created TEXT, expires TEXT, revoked INTEGER DEFAULT 0, snapshot TEXT, snap_hash TEXT,
-      opens INTEGER DEFAULT 0, last_opened TEXT);""")
+      opens INTEGER DEFAULT 0, last_opened TEXT);
+    CREATE TABLE IF NOT EXISTS meta(k TEXT PRIMARY KEY, v TEXT);""")
 
 now = lambda: datetime.now(timezone.utc)
 iso = lambda d: d.isoformat(timespec="seconds").replace("+00:00", "Z")
 parse = lambda s: datetime.fromisoformat(s.replace("Z", "+00:00"))
 sha = lambda s: hashlib.sha256(s.encode()).hexdigest()
 clamp = lambda x: max(0.0, min(1.0, x))
+
+
+def business():  # name of the business whose data is loaded (set by the demo profile)
+    with db() as c:
+        r = c.execute("SELECT v FROM meta WHERE k='business'").fetchone()
+    return r["v"] if r else os.getenv("BUSINESS_NAME", "Asha's Tiffin Service")
 
 
 # ---------------- data intake ----------------
@@ -68,40 +75,65 @@ async def upload(file: UploadFile = File(...)):
             except ValueError:
                 continue
             desc = col(r, "desc", "narr").strip()
+            low = desc.lower()  # EMI / SHG / chit rows count as repayment and saving, not sales
+            kind = "emi" if "emi" in low else "shg" if "shg" in low else "chit" if "chit" in low else "sale"
             c.execute("INSERT INTO tx(date,descr,amt,party,src,kind) VALUES(?,?,?,?,?,?)",
-                      (d, desc, a, (col(r, "party") or desc).strip(), "csv", "sale"))
+                      (d, desc, abs(a) if kind != "sale" else a, (col(r, "party") or desc).strip(), "csv", kind))
             n += 1
     if n == 0:
         raise HTTPException(400, "No valid rows. Need columns: date (YYYY-MM-DD), description, amount, party (optional)")
     return {"imported": n}
 
 
+PROFILES = {  # demo businesses: pool0/pool_step = how many different customers, cost_every = days between costs
+    "tiffin": dict(name="Asha's Tiffin Service", seed=7, p=.88, pend=.45, avg=90, spread=140, growth=.04, pool0=7, pool_step=1,
+                   cost="Vegetable mandi", cost_base=2000, cost_var=700, cost_every=7, emi=1500, shg=500),
+    "tailor": dict(name="Meena Tailoring Works", seed=11, p=.30, pend=.20, avg=350, spread=550, growth=0.0, pool0=3, pool_step=0,
+                   cost="Cloth supplier", cost_base=1500, cost_var=1200, cost_every=14, emi=0, shg=0),
+    "bakery": dict(name="Pooja's Home Bakery", seed=19, p=.70, pend=.55, avg=160, spread=200, growth=.12, pool0=4, pool_step=2,
+                   cost="Flour and sugar", cost_base=1800, cost_var=600, cost_every=7, emi=0, shg=500),
+}
+
+
 @app.post("/api/demo/seed")
-def seed():
-    r, rows = random.Random(7), []
+def seed(profile: str = "tiffin"):
+    """Load a demo business: tiffin (steady), tailor (irregular), bakery (growing)."""
+    if profile not in PROFILES:
+        raise HTTPException(400, f"profile must be one of {list(PROFILES)}")
+    P = PROFILES[profile]
+    r, rows = random.Random(P["seed"]), []
     names = ["Sunita", "Meena", "Raju", "Anil", "Pooja", "Vikas", "Asha", "Kiran", "Deepak", "Nisha", "Ravi", "Sana"]
     for m in range(4, 10):
+        pool = names[: min(12, P["pool0"] + (m - 4) * P["pool_step"])]
         for d in range(1, 29):
             ds = f"2026-{m:02d}-{d:02d}"
-            if r.random() < (0.45 if d >= 24 else 0.88):
+            if r.random() < (P["pend"] if d >= 24 else P["p"]):
                 for _ in range(r.randint(1, 3)):
-                    p = r.choice(names[: 6 + m - 3])
-                    rows.append((ds, f"UPI/{p}/{r.randint(1, 999999)}", round((90 + r.random() * 140) * (1 + (m - 4) * .04)), p, "csv", "sale"))
-            if d % 7 == 2: rows.append((ds, "Vegetable mandi", -round(2000 + r.random() * 700), "mandi", "csv", "sale"))
+                    p = r.choice(pool)
+                    rows.append((ds, f"UPI/{p}/{r.randint(1, 999999)}", round((P["avg"] + r.random() * P["spread"]) * (1 + (m - 4) * P["growth"])), p, "csv", "sale"))
+            if d % P["cost_every"] == 2: rows.append((ds, P["cost"], -round(P["cost_base"] + r.random() * P["cost_var"]), "supplier", "csv", "sale"))
             if d == 12: rows.append((ds, "School fees", -2000, "school", "csv", "sale"))
             if d == 5:
-                rows.append((ds, "EMI payment", 1500, "bank", "manual", "emi"))
-                rows.append((ds, "SHG contribution", 500, "shg", "manual", "shg"))
+                if P["emi"]: rows.append((ds, "EMI payment", P["emi"], "bank", "manual", "emi"))
+                if P["shg"]: rows.append((ds, "SHG contribution", P["shg"], "shg", "manual", "shg"))
     with db() as c:
         c.execute("DELETE FROM tx")
         c.executemany("INSERT INTO tx(date,descr,amt,party,src,kind) VALUES(?,?,?,?,?,?)", rows)
-    return {"seeded": len(rows)}
+        c.execute("INSERT OR REPLACE INTO meta(k,v) VALUES('business',?)", (P["name"],))
+    return {"seeded": len(rows), "profile": profile, "business": P["name"]}
+
+
+@app.get("/api/profile")
+def get_profile():
+    return {"business": business(), "profiles": list(PROFILES)}
 
 
 @app.delete("/api/transactions")
-def reset():
+def reset(business: str | None = None):
     with db() as c:
         c.execute("DELETE FROM tx")
+        if business:
+            c.execute("INSERT OR REPLACE INTO meta(k,v) VALUES('business',?)", (business.strip()[:80],))
     return {"ok": True}
 
 
@@ -187,7 +219,7 @@ def create_share(b: ShareIn):
         raise HTTPException(400, f"lenderLabel required; durationLabel one of {list(DUR)}")
     snap = compute()
     sid, token = "share-" + secrets.token_hex(3), secrets.token_urlsafe(16)
-    snap.update(business=f"Business #{secrets.token_hex(2).upper()}", generatedAt=iso(now()))
+    snap.update(business=business(), generatedAt=iso(now()))
     sj = json.dumps(snap, sort_keys=True, separators=(",", ":"))
     with db() as c:
         c.execute("INSERT INTO shares(id,token_hash,lender,sections,duration,created,expires,snapshot,snap_hash) VALUES(?,?,?,?,?,?,?,?,?)",

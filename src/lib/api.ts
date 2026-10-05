@@ -1,5 +1,5 @@
 // Drop this file into src/lib/api.ts. Set VITE_API_URL in .env (e.g. http://localhost:8000).
-const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8000";
+const BASE = (import.meta.env["VITE_API_URL"] as string | undefined) ?? "http://localhost:8000";
 
 export type Sections = { score: boolean; charts: boolean; confidence: boolean };
 export type Share = {
@@ -30,7 +30,8 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
-  seedDemo: () => call("/api/demo/seed", { method: "POST" }),
+  seedDemo: (profile = "tiffin") => call("/api/demo/seed?profile=" + profile, { method: "POST" }),
+  resetData: (business?: string) => call("/api/transactions" + (business ? "?business=" + encodeURIComponent(business) : ""), { method: "DELETE" }),
   addSale: (amount: number, kind: "sale" | "shg" | "emi" | "chit" = "sale") =>
     call("/api/transactions", json({ amount, kind })),
   uploadCsv: (file: File) => {
