@@ -4,7 +4,6 @@
 
 Built for **She Solves 3.0** (Round 2: Prototype Development).
 
-**Live frontend:** https://credit-passport-she.lovable.app
 **Demo video:** https://drive.google.com/file/d/15ofT2RlB5vIeclhVVhZ9j9hl8IxhFCSE/view?usp=sharing
 
 ## Problem Statement
